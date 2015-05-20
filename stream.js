@@ -13,10 +13,6 @@ var keywords = require('./keywords.js')
 geobox = locations.glasgow;
 
 var key_array = keywords.split(",");
-var tree = "some tree thingie";
-var tree_house = "some tree house thingie";
-var house = "some house thingie";
-
 
 // Argument parsing - Unused. 
 // if (argv.keywords){
@@ -67,22 +63,22 @@ db.open(function(err, db){
   var stream = t.stream('statuses/filter', {track: keywords, locations:geobox})
   stream.on('tweet', function (tweet) {
 
-    db.collection("all_tweets").insert(tweet);
-    //
-    if (tweet["geo"] != null){
-      db.collection("all_geo").insert(tweet);
-    };
-    
     // Loop through keywords and check if they are in the tweet text
     for (i=0; i < key_array.length; i++){
       var keyword = key_array[i];
 
       if (tweet['text'].toLowerCase().indexOf(keyword) >= 0){
-        //Add them to a collection of the title of the keyword
-        db.collection(keyword).insert(tweet)
+        
+        //Add them to an array inside the object with an id of the name of the collection
+        collection = db.collection("tweets")
+
+        collection.insert({keyword:keyword, tweet:tweet});
+        console.log(tweet);
+
+        
       };
     };
-    // console.log(tweet)
+
   });
   // db.close();
 });
